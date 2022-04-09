@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+﻿using CrudUser.Dtos;
 using CrudUser.Dtos.Users;
 using CrudUser.Services;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using System.Threading.Tasks;
 
 namespace CrudUser.Controllers
 {
     [Route("api/[controller]")]
+    [Produces("application/json")]
     [ApiController]
     public class UsersController : ControllerBase
     {
@@ -22,42 +21,51 @@ namespace CrudUser.Controllers
             _userService = userService;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "GetUsers")]
+        [ProducesResponseType(typeof(UserDto[]), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _userService.GetAllAsync());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetUserById")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(int id)
         {
             var user = await _userService.GetByIdAsync(id);
 
-            return user is null ? NotFound() : Ok(user);
+            return user is not null ? Ok(user) : NotFound(new Error("Hubó un error"));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(UserDto user)
+        [HttpPost(Name = "CreateUser")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create(CreateUserInput input)
         {
-            user = await _userService.CreateAsync(user);
+            var user = await _userService.CreateAsync(input);
 
-            return user is null ? BadRequest() : Ok(user);
+            return user is not null ? Ok(user) : BadRequest(new Error("Hubó un error"));
         }
 
-        [HttpPut]
+        [HttpPut(Name = "UpdateUser")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update(UserDto user)
         {
             user = await _userService.UpdateAsync(user);
 
-            return user is null ? BadRequest() : Ok(user);
+            return user is not null ? Ok(user) : BadRequest(new Error("Hubó un error"));
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}", Name = "DeleteUser")]
+        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Error), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _userService.DeleteAsync(id);
 
-            return user is null ? BadRequest() : Ok(user);
+            return user is not null ? Ok(user) : BadRequest(new Error("Hubó un error"));
         }
     }
 }

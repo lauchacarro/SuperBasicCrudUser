@@ -2,6 +2,8 @@
 using CrudUser.Dtos.Users;
 using CrudUser.Entites;
 
+using System;
+
 namespace CrudUser.Mappers
 {
     public static class UserMapper
@@ -16,14 +18,13 @@ namespace CrudUser.Mappers
                 Name = user.Name
             };
 
-        public static User ConvertToEntity(this UserDto user)
+        public static User ConvertToEntity(this CreateUserInput input)
             => new User
             {
-                Id = user.Id,
-                Email = user.Email,
-                IsActive = user.IsActive,
-                LastName = user.LastName,
-                Name = user.Name
+                Email = input.Email,
+                IsActive = input.IsActive,
+                LastName = input.LastName,
+                Name = input.Name
             };
     }
 }

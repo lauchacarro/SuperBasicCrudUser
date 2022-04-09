@@ -13,7 +13,7 @@ namespace CrudUser.Services
 {
     public interface IUserService
     {
-        Task<UserDto> CreateAsync(UserDto user);
+        Task<UserDto> CreateAsync(CreateUserInput input);
         Task<UserDto> UpdateAsync(UserDto user);
         Task<UserDto> DeleteAsync(int id);
         Task<IEnumerable<UserDto>> GetAllAsync();
@@ -30,18 +30,18 @@ namespace CrudUser.Services
             _context = context;
         }
 
-        public async Task<UserDto> CreateAsync(UserDto user)
+        public async Task<UserDto> CreateAsync(CreateUserInput input)
         {
-            if (string.IsNullOrWhiteSpace(user.Name))
+            if (string.IsNullOrWhiteSpace(input.Name))
                 return null;
 
-            if (string.IsNullOrWhiteSpace(user.LastName))
+            if (string.IsNullOrWhiteSpace(input.LastName))
                 return null;
 
-            if (string.IsNullOrWhiteSpace(user.Email))
+            if (string.IsNullOrWhiteSpace(input.Email))
                 return null;
 
-            var entity = user.ConvertToEntity();
+            var entity = input.ConvertToEntity();
 
             await _context.Users.AddAsync(entity);
             await _context.SaveChangesAsync();
@@ -57,9 +57,7 @@ namespace CrudUser.Services
             if (entity is null)
                 return null;
 
-            entity.IsActive = false;
-
-            _context.Users.Update(entity);
+            _context.Users.Remove(entity);
 
             await _context.SaveChangesAsync();
 
@@ -100,6 +98,7 @@ namespace CrudUser.Services
             entity.Name = user.Name;
             entity.LastName = user.LastName;
             entity.Email = user.Email;
+            entity.IsActive = user.IsActive;
 
             _context.Users.Update(entity);
             await _context.SaveChangesAsync();
